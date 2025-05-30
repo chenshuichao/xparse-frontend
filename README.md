@@ -1,7 +1,7 @@
 
-# [Parsex-Frontend](https://github.com/intsig-textin/parsex-frontend.git)
+# [xParse-Frontend](https://github.com/intsig-textin/xparse-frontend.git)
 
-- [Parsex-Frontend](#parsex-frontend)
+- [xParse-Frontend](#xParse-Frontend)
   - [项目简介](#项目简介)
   - [安装依赖](#安装依赖)
   - [启动项目](#启动项目)
@@ -43,7 +43,7 @@
 拉取项目
 
 ```bash
-git clone https://github.com/intsig-textin/parsex-frontend.git
+git clone https://github.com/intsig-textin/xparse-frontend.git
 ```
 
 使用 npm 或 yarn 安装：
@@ -88,7 +88,7 @@ npm run start
 
 简要描述项目文件结构，以帮助贡献者和用户理解项目的组织方式。
 
-```Parsex-Frontend
+```xParse-Frontend
 ├── src/                    # 源代码
 │   ├── assets/             # 静态资源
 │   ├── components/         # 全局通用组件

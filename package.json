@@ -1,7 +1,7 @@
 {
-  "name": "parsex-frontend",
+  "name": "xparse-frontend",
   "version": "1.0.0",
-  "repository": "https://github.com/intsig-textin/parsex-frontend.git",
+  "repository": "https://github.com/intsig-textin/xparse-frontend.git",
   "license": "MIT",
   "contributors": [
     {
