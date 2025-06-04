@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { useEffect, useRef, useState, useMemo, useLayoutEffect } from 'react';
 import { Pagination } from 'antd';
 import { useScroll, useSize } from 'ahooks';
+import classNames from 'classnames';
 import { ReactComponent as OutlineRight } from '@/assets/icon/dashbord/outline-right.svg';
 import { ReactComponent as OutlineLeft } from '@/assets/icon/dashbord/outline-left.svg';
 import styles from './index.less';
@@ -223,7 +224,7 @@ function PDFRenderViewer(props: IProps) {
           pageSize={1}
           itemRender={pageItemRender}
           onChange={onPageChange}
-          className={styles['pdf-page']}
+          className={classNames(styles['pdf-page'], 'mainView-pagination')}
         />
       )}
     </>

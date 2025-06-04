@@ -43,7 +43,11 @@ export const genTableContentTreeList = (list: any[]) => {
   return res;
 };
 
-export const scrollIntoActiveCatalog = (pageNumber: number, contentId: any) => {
+export const scrollIntoActiveCatalog = (
+  pageNumber: number,
+  contentId: any,
+  { onScrollToPage }: { onScrollToPage?: (pageNumber: number) => void } = {},
+) => {
   const activePage = document.querySelector(`#imgContainer [data-page-number="${pageNumber}"]`);
   const oldActivePolygons = document.querySelectorAll('#imgContainer polygon.active');
   if (oldActivePolygons) {
@@ -51,7 +55,12 @@ export const scrollIntoActiveCatalog = (pageNumber: number, contentId: any) => {
       item.classList.remove('active');
     });
   }
-  activePage?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+  if (activePage) {
+    activePage?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+  } else {
+    onScrollToPage?.(pageNumber);
+  }
+
   const handle = () => {
     const targetPolygon = activePage?.querySelector(`polygon[data-content-id="${contentId}"]`);
     if (targetPolygon) {

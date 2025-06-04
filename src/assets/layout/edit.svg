@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <defs>
+        <rect id="path-1" x="0" y="0" width="16" height="16"></rect>
+    </defs>
+    <g id="文档解析全局优化" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="解析结果-导航交互" transform="translate(-1773, -1685)">
+            <g id="编组-2" transform="translate(1029, 1671)">
+                <g id="icon-shop/icon_line/ic_ratio_default备份-2" transform="translate(744, 14)">
+                    <mask id="mask-2" fill="white">
+                        <use xlink:href="#path-1"></use>
+                    </mask>
+                    <g id="矩形"></g>
+                    <g id="编组" mask="url(#mask-2)" fill="currentColor" fill-rule="nonzero">
+                        <g transform="translate(1.3333, 1.3333)" id="形状">
+                            <path d="M3.49509333,10.6627396 L0.666666667,10.6627396 L0.666666667,7.83010751 L8.29,0.195547553 C8.5504,-0.0651825176 8.97246667,-0.0651825176 9.2328,0.195547553 L11.1184667,2.08394444 C11.3788,2.34467451 11.3788,2.76740948 11.1184667,3.02813955 L3.49509333,10.6627396 Z M0.666666667,11.9980364 L12.6666667,11.9980364 L12.6666667,13.3333333 L0.666666667,13.3333333 L0.666666667,11.9980364 Z"></path>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

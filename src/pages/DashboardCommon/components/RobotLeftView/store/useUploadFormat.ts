@@ -105,6 +105,7 @@ export function useUploadFormat(props?: { curRobot: any; [key: string]: any }) {
   const [reRecognizeDeps, setReRecognizeDeps] = useState(0);
 
   useEffect(() => {
+    console.log('props', props, service)
     if (!service) return;
     if (props?.curRobot) {
       if (api_document?.id === service) {

@@ -23,6 +23,7 @@ export default ({ showText = true, autoLink, ...props }: MainViewProps) => {
     setCurUid,
     rectList: singleRects,
     setResultJson,
+    resultVirtuosoRef,
   } = storeContainer.useContainer();
 
   const { onLoad, rects } = useAfterLoad(currentFile?.rects);
@@ -57,6 +58,7 @@ export default ({ showText = true, autoLink, ...props }: MainViewProps) => {
   return (
     <ImageView
       {...props}
+      resultVirtuosoRef={resultVirtuosoRef}
       callBack={(props: any) => {
         imgRef.current = props.imgRef?.current;
         markRefresh();

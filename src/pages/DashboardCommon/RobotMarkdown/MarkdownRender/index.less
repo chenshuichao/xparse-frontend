@@ -1,11 +1,29 @@
 .markdown-body {
   position: relative;
-  padding: 0 30px 0;
+  // padding: 0 30px 0;
   color: @text-color;
   white-space: pre-wrap;
 
   [data-content-id] {
     margin-bottom: 12px;
+  }
+  :global {
+    [data-page-number]:not(:only-child):not(.hidden-page) {
+      &:not(:empty):has(> :not(.hidden)):after {
+        display: block;
+        margin: 8px 0 20px;
+        color: @text-gray-color;
+        font-size: 12px;
+        text-align: center;
+        border-bottom: 1px solid #eee;
+        content: '[\7b2c'attr(data-page-number) '\9875]';
+        user-select: none;
+      }
+    }
+    [data-testid='virtuoso-item-list'] {
+      padding-right: 30px;
+      padding-left: 30px;
+    }
   }
 
   a {
@@ -14,21 +32,21 @@
 
   p {
     margin-bottom: 12px;
+    color: inherit;
   }
 
   ol,
   ul {
     margin-left: 40px;
     padding-left: 0;
-  }
+    font-size: 0;
 
-  img {
-    border: 1px solid transparent;
+    li {
+      font-size: 14px;
+    }
   }
 
   table {
-    margin-bottom: 12px;
-
     &,
     & td,
     & th {
@@ -45,7 +63,6 @@
     }
   }
 
-  p,
   h1,
   h2,
   h3,
@@ -53,6 +70,22 @@
   h5,
   h6 {
     color: inherit;
+    font-weight: bold;
+  }
+
+  h1 {
+    font-size: 24px;
+  }
+  h2 {
+    font-size: 20px;
+  }
+  h3 {
+    font-size: 18px;
+  }
+  h4,
+  h5,
+  h6 {
+    font-size: 14px;
   }
 
   :global {
@@ -101,7 +134,6 @@
         color: @primary-color !important;
       }
 
-      img,
       table {
         border: 1px solid @primary-color;
       }
@@ -115,7 +147,7 @@
         }
 
         tr .active {
-          background-color: rgba(17, 163, 95, 0.2);
+          background-color: rgba(17, 163, 95, 0.25);
         }
       }
 
@@ -123,32 +155,87 @@
         border-color: @primary-color;
       }
 
-      img {
-        border-color: #ed7b2b;
+      .image-text {
+        color: @primary-color;
       }
     }
 
     .copy-handle {
       position: absolute;
       top: 0;
-      left: 0px;
+      left: -20px;
       display: none;
       cursor: pointer;
     }
 
     .content-container {
       position: relative;
-      margin-left: -20px;
-      padding-left: 20px;
+
       &:hover {
+        &::before {
+          position: absolute;
+          top: 0;
+          bottom: 0;
+          left: -20px;
+          width: 20px;
+          content: '';
+        }
+
         .copy-handle {
           display: block;
         }
       }
     }
 
-    .chart-table {
-      margin-top: 12px;
+    .image-wrapper {
+      &:not(.has-text) {
+        img {
+          border: 1px solid transparent;
+        }
+
+        &.active {
+          img {
+            border-color: #bd8d1c;
+          }
+
+          &.stamp {
+            img {
+              border-color: #ad581a;
+            }
+          }
+        }
+      }
+
+      &.has-text {
+        .image-wrapper-border {
+          display: inline-block;
+          max-width: 100%;
+          padding: 12px;
+          border: 1px solid #e1e4eb;
+
+          img {
+            border: 0;
+          }
+        }
+
+        &.active {
+          .image-wrapper-border {
+            border-color: #bd8d1c;
+          }
+
+          &.stamp .image-wrapper-border {
+            border-color: #ad581a;
+          }
+        }
+      }
+
+      .chart-table {
+        margin-top: 12px;
+
+        table {
+          width: 100%;
+        }
+      }
     }
 
     .table-wrapper {
@@ -157,19 +244,24 @@
 
     .split-table-line {
       position: absolute;
-      right: 0;
-      left: -20px;
+      right: -20px;
+      left: 0;
       height: 1px;
       background-color: #fff;
       border-bottom: 1px dashed #999;
 
       .split-table-line-number {
         position: absolute;
-        top: -16px;
-        left: 8px;
+        top: -48px;
+        right: 0;
         color: @text-gray-color;
         font-size: 12px;
         line-height: 16px;
+        text-align: center;
+
+        span {
+          display: block;
+        }
       }
     }
 
@@ -195,6 +287,12 @@
         color: @text-gray-color;
       }
     }
+
+    mjx-merror {
+      padding: 2px 4px;
+      color: rgba(211, 73, 73, 0.75);
+      background-color: rgba(224, 224, 36, 0.3);
+    }
   }
 }
 
@@ -210,6 +308,9 @@
       height: auto;
       padding: 4px !important;
       background-color: #e9f0ffaa !important;
+      &:empty {
+        display: none;
+      }
     }
     .vditor-reset {
       font-size: inherit;
@@ -221,10 +322,32 @@
     .vditor-reset h5,
     .vditor-reset h6 {
       margin: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+    .vditor-reset h1 {
+      font-size: 2em;
+    }
+    .vditor-reset h2 {
+      font-size: 1.5em;
+    }
+    .vditor-reset h3 {
+      font-size: 1.17em;
+    }
+    .vditor-reset h4 {
+      font-size: 1em;
+    }
+    .vditor-reset h5 {
+      font-size: 0.83em;
+    }
+    .vditor-reset h6 {
+      font-size: 0.67em;
     }
     .vditor-content {
-      min-height: 48px;
-      padding-bottom: 16px;
+      // min-height: 48px;
+      // padding-bottom: 16px;
+      min-height: 0;
+      padding-bottom: 0;
     }
     .vditor-reset table td,
     .vditor-reset table th {
@@ -247,8 +370,53 @@
 .editMode {
   display: flex !important;
   visibility: visible;
-
   .editor {
+    display: flex !important;
+    visibility: visible;
+  }
+}
+
+.question-item {
+  margin-bottom: 0 !important;
+
+  &:not(:first-child) {
+    padding-top: 8px;
+    border-top: 1px solid #eee;
+  }
+
+  .question-type {
+    margin: 0 -12px 8px;
+    padding: 0 12px;
+    color: #757a85;
+    line-height: 32px;
+    background-color: rgba(242, 244, 247, 0.8);
+  }
+
+  .line-container {
     display: flex;
+
+    .line-label {
+      flex: 0 0 60px;
+      color: @text-gray-color;
+    }
+  }
+
+  .question-image {
+    display: inline-block;
+    padding: 0 16px;
+    border: 1px solid @border-color-base;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: 0.3;
+
+    &:hover,
+    &:global(.active) {
+      color: @primary-color;
+      border-color: @primary-color;
+    }
+
+    &:not(:last-child) {
+      margin-right: 8px;
+    }
   }
 }

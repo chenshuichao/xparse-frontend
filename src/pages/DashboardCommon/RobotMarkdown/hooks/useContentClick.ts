@@ -1,5 +1,8 @@
+import { scrollIntoViewIfNeeded } from '@/utils/dom';
 import useLatest from '@/utils/hooks/useLatest';
-import { useEffect } from 'react';
+import { ensureNumber, isNumber } from '@/utils/objectUtils';
+import { useEffect, useRef } from 'react';
+import type { VirtuosoGridHandle } from 'react-virtuoso';
 
 interface IProps {
   onRectClick?: (e: any) => void;
@@ -7,6 +10,8 @@ interface IProps {
   scrollToCenter?: boolean;
   run?: boolean;
   data?: { [key: string]: any; content_id: any }[][];
+  viewerVirtuosoRef?: React.RefObject<VirtuosoGridHandle>;
+  getViewerItemIndex?: (pageNumber: number) => number;
 }
 
 const useContentClick = ({
@@ -15,9 +20,13 @@ const useContentClick = ({
   scrollToCenter,
   run = true,
   data,
+  viewerVirtuosoRef,
+  getViewerItemIndex,
 }: IProps = {}) => {
   const latestRectClick = useLatest(onRectClick);
   const latestContentClick = useLatest(onContentClick);
+  const findActivePageTimerRef = useRef<any>(null);
+  const findActiveCellTimerRef = useRef<any>(null);
 
   useEffect(() => {
     const dom = document.querySelector('.result-content-body');
@@ -32,7 +41,7 @@ const useContentClick = ({
     }
   }, [run, data]);
 
-  function clickHandle(e: any) {
+  function clickHandle(e: any, { scrollOnly = false }: { scrollOnly?: boolean } = {}) {
     const wrapper = e.currentTarget as HTMLDivElement;
     let target: any = e.target;
     let activeTarget: HTMLDivElement | undefined;
@@ -48,23 +57,28 @@ const useContentClick = ({
         target = target.parentElement;
       }
     }
-    const oldActiveDoms = wrapper.querySelectorAll<HTMLDivElement>(`[data-content-id].active`);
-    if (oldActiveDoms) {
-      oldActiveDoms.forEach((item) => {
-        if (item !== activeTarget) {
+    if (activeTarget?.dataset.active === '0') return;
+    if (!scrollOnly) {
+      const oldActiveDoms = wrapper.querySelectorAll<HTMLDivElement>(`[data-content-id].active`);
+      if (oldActiveDoms) {
+        oldActiveDoms.forEach((item) => {
+          if (item !== activeTarget) {
+            item.classList.remove('active');
+          }
+        });
+      }
+      const oldCellDoms = wrapper.querySelectorAll<HTMLTableCellElement>(`table .active`);
+      oldCellDoms.forEach((item) => {
+        if (item !== e.target) {
           item.classList.remove('active');
         }
       });
     }
-    const oldCellDoms = wrapper.querySelectorAll<HTMLTableCellElement>(`table .active`);
-    oldCellDoms.forEach((item) => {
-      if (item !== e.target) {
-        item.classList.remove('active');
-      }
-    });
 
     if (activeTarget) {
-      activeTarget.classList.add('active');
+      if (!scrollOnly) {
+        activeTarget.classList.add('active');
+      }
 
       let pageNumber = '';
       let pageTarget = activeTarget.parentElement;
@@ -87,6 +101,7 @@ const useContentClick = ({
         pageNumber,
         contentId: activeTarget.dataset.contentId,
         triggerTarget: cellTarget,
+        scrollOnly,
       });
     }
   }
@@ -96,10 +111,10 @@ const useContentClick = ({
     contentId?: string;
     scrollToCenter?: boolean;
     triggerTarget?: HTMLTableCellElement;
+    scrollOnly?: boolean;
   }) {
-    const { contentId, triggerTarget } = params;
+    const { contentId, triggerTarget, scrollOnly } = params;
     let pageNumber = params.pageNumber;
-
     let activeCellId: any;
     const triggerParent = triggerTarget?.parentElement;
     if (
@@ -172,74 +187,158 @@ const useContentClick = ({
     const scrollToCenterView = params.hasOwnProperty('scrollToCenter')
       ? params.scrollToCenter
       : scrollToCenter;
-    const activePage = document.querySelector(`#imgContainer [data-page-number="${pageNumber}"]`);
-    const oldActivePolygons = document.querySelectorAll('#imgContainer polygon.active');
-    if (oldActivePolygons) {
-      oldActivePolygons.forEach((item) => {
-        item.classList.remove('active');
-      });
-    }
-    if (scrollToCenterView) {
-      activePage?.scrollIntoView();
-    } else {
-      activePage?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
-    }
-
-    if (latestContentClick.current) {
-      latestContentClick.current(params);
-    }
-
-    const handle = () => {
-      const targetPolygon = document.querySelectorAll(
-        `#imgContainer polygon[data-content-id="${contentId}"]`,
-      );
-      const activeCell = document.querySelector(activeCellId);
-      if (activeCellId && !activeCell && !targetPolygon.length && triggerTarget) {
-        triggerTarget.classList.add('active');
+    const viewerContainer = document.querySelector<HTMLElement>('#imgContainer');
+    const getActivePage = () =>
+      viewerContainer?.querySelector<HTMLElement>(`[data-page-number="${pageNumber}"]`);
+    let activePage = getActivePage();
+    if (!activePage) {
+      if (viewerVirtuosoRef?.current && pageNumber) {
+        const targetPageIndex = getViewerItemIndex?.(ensureNumber(pageNumber));
+        viewerVirtuosoRef.current.scrollToIndex({
+          index: isNumber(targetPageIndex) ? targetPageIndex : ensureNumber(pageNumber) - 1,
+          align: 'center',
+        });
       }
-      if (targetPolygon?.length) {
-        targetPolygon.forEach((item) => {
-          item.classList.add('active');
-        });
-        targetPolygon[targetPolygon.length - 1].scrollIntoView({
-          block: 'nearest',
-          inline: 'nearest',
-        });
-        const oldCellPaths = document.querySelectorAll<SVGPathElement>(
-          `#imgContainer .cell-g-wrapper path.active`,
-        );
-        oldCellPaths.forEach((item) => {
+      let count = 0;
+      if (findActivePageTimerRef.current) {
+        clearInterval(findActivePageTimerRef.current);
+      }
+      findActivePageTimerRef.current = setInterval(() => {
+        if (activePage || count > 30) {
+          clearInterval(findActivePageTimerRef.current);
+          findActivePageTimerRef.current = null;
+          count = 0;
+          scrollTargetPageAndContent();
+        } else {
+          activePage = getActivePage();
+        }
+      }, 100);
+    } else {
+      scrollTargetPageAndContent();
+    }
+
+    function scrollTargetPageAndContent() {
+      const oldActivePolygons = document.querySelectorAll('#imgContainer polygon.active');
+      if (oldActivePolygons) {
+        oldActivePolygons.forEach((item) => {
           item.classList.remove('active');
         });
-        if (activeCell && triggerTarget) {
-          const cellGroup = document.querySelector<SVGPathElement>(
-            `#imgContainer .cell-g-wrapper[data-content-id="${contentId}"]`,
-          );
-          if (!cellGroup?.classList.contains('cell-g-hidden')) {
-            triggerTarget.classList.add('active');
-            activeCell.classList.add('active');
-            activeCell.scrollIntoView({ block: 'center', inline: 'nearest' });
-          }
+      }
+      if (scrollToCenterView) {
+        activePage?.scrollIntoView();
+      } else {
+        if (activePage && viewerContainer) {
+          scrollIntoViewIfNeeded(activePage, viewerContainer, {
+            block: 'nearest',
+            inline: 'nearest',
+          });
         }
-        return true;
-      }
-      return false;
-    };
 
-    requestAnimationFrame(() => {
-      if (!handle()) {
-        requestAnimationFrame(() => {
-          handle();
-        });
+        // activePage?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
       }
-    });
+
+      if (scrollOnly) {
+        return;
+      }
+
+      if (latestContentClick.current) {
+        latestContentClick.current(params);
+      }
+
+      const handle = () => {
+        const targetPolygon = document.querySelectorAll<HTMLElement>(
+          `#imgContainer polygon[data-content-id="${contentId}"]`,
+        );
+
+        const activeCell = document.querySelector(activeCellId);
+        if (activeCellId && !activeCell && !targetPolygon.length && triggerTarget) {
+          triggerTarget.classList.add('active');
+        }
+        if (targetPolygon?.length) {
+          targetPolygon.forEach((item) => {
+            item.classList.add('active');
+          });
+          const scrollToTargetPolygon = () => {
+            scrollIntoViewIfNeeded(
+              targetPolygon[targetPolygon.length - 1],
+              viewerContainer!,
+              {
+                block: 'nearest',
+                inline: 'nearest',
+              },
+              targetPolygon[targetPolygon.length - 1]?.getBoundingClientRect().height,
+            );
+            // targetPolygon[targetPolygon.length - 1].scrollIntoView({
+            //   block: 'nearest',
+            //   inline: 'nearest',
+            // });
+          };
+
+          const oldCellPaths = document.querySelectorAll<SVGPathElement>(
+            `#imgContainer .cell-g-wrapper path.active`,
+          );
+          oldCellPaths.forEach((item) => {
+            item.classList.remove('active');
+          });
+          if (activeCell && triggerTarget) {
+            const cellGroup = document.querySelector<SVGPathElement>(
+              `#imgContainer .cell-g-wrapper[data-content-id="${contentId}"]`,
+            );
+            if (!cellGroup?.classList.contains('cell-g-hidden')) {
+              triggerTarget.classList.add('active');
+              activeCell.classList.add('active');
+              scrollIntoViewIfNeeded(
+                activeCell,
+                viewerContainer!,
+                {
+                  block: 'nearest',
+                  inline: 'nearest',
+                },
+                activeCell?.getBoundingClientRect().height,
+              );
+              // activeCell.scrollIntoView({ block: 'center', inline: 'nearest' });
+            } else {
+              scrollToTargetPolygon();
+            }
+          } else {
+            scrollToTargetPolygon();
+          }
+          if (!activeCell && triggerTarget && activeCellId) {
+            return false;
+          }
+          return true;
+        }
+        return false;
+      };
+
+      let count = 0;
+      if (findActiveCellTimerRef.current) {
+        clearInterval(findActiveCellTimerRef.current);
+      }
+      findActiveCellTimerRef.current = setInterval(() => {
+        count++;
+        if (handle() || count >= 100) {
+          clearInterval(findActiveCellTimerRef.current);
+          count = 0;
+          findActiveCellTimerRef.current = null;
+        }
+      }, 100);
+
+      // requestAnimationFrame(() => {
+      //   if (!handle()) {
+      //     requestAnimationFrame(() => {
+      //       handle();
+      //     });
+      //   }
+      // });
+    }
   }
 
   function rectClickHandle(e: any) {
     latestRectClick.current?.(e);
   }
 
-  return { scrollToTarget };
+  return { scrollToTarget, clickHandle };
 };
 
 export default useContentClick;

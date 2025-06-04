@@ -11,16 +11,18 @@ export interface IProps extends Omit<UploadProps, 'onUpload'> {
 }
 
 const Upload = (props: IProps) => {
-  const { getList, desc, uploadName = '上传文件' } = props;
+  const { getList, desc, uploadName = '上传文件', children } = props;
 
   return (
     <div className={styles.robotUpload} data-tut="robot-upload">
       <UploadFile onUpload={getList} {...props}>
-        <div className={styles.uploadChildren}>
-          <UploadIcon className={styles.upload_icon} />
-          <div className={styles.text}>{uploadName}</div>
-          <div className={styles.desc}>{desc || '(支持单个/批量上传)'}</div>
-        </div>
+        {children || (
+          <div className={styles.uploadChildren}>
+            <UploadIcon className={styles.upload_icon} />
+            <div className={styles.text}>{uploadName}</div>
+            <div className={styles.desc}>{desc || '(支持单个/批量上传)'}</div>
+          </div>
+        )}
       </UploadFile>
     </div>
   );

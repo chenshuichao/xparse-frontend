@@ -24,10 +24,6 @@ const RobotHeader = (props: IProps) => {
 
   const documentVisibility = useDocumentVisibility();
 
-  useEffect(() => {
-    document.title = `TextIn - xParse`;
-  }, [name]);
-
   useEffect(() => {}, [service, documentVisibility]);
 
   useEffect(() => {}, [uploadEnd]);

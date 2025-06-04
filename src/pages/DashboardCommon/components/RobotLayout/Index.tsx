@@ -1,8 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Col, Row } from 'antd';
 import { RightOutlined, LeftOutlined } from '@ant-design/icons';
-import type { Dispatch } from 'umi';
-import { connect } from 'umi';
+import { connect, useDispatch } from 'umi';
 import classNames from 'classnames';
 import type { ConnectState } from '@/models/connect';
 import useUploadFormat from '../RobotLeftView/store/useUploadFormat';
@@ -10,35 +9,44 @@ import useMathJaxLoad from '../../RobotMarkdown/MathJaxRender/useMathJaxLoad';
 import styles from './Index.less';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 
+export const LEFT_WIDTH = 258;
+
 interface IProps {
   leftView: React.ReactNode;
+  leftWidth?: number;
   showCollapsed?: boolean;
   autoCollapsed?: any;
   catalogView?: React.ReactNode;
   mainView: React.ReactNode;
   rightView?: React.ReactNode;
   curRobot: Record<string, any>;
+  Robot: ConnectState['Robot'];
   resizable?: boolean;
-  dispatch: Dispatch;
 }
 const RobotLayout: React.FC<IProps> = ({
   leftView,
+  leftWidth = LEFT_WIDTH,
   catalogView,
   mainView,
   rightView,
   showCollapsed,
   autoCollapsed,
   curRobot,
+  Robot,
   resizable = true,
-  dispatch,
 }) => {
+  const { uploadEnd } = Robot;
   const { collapsed, setCollapsed } = useUploadFormat.useContainer();
   const [isDragging, setIsDragging] = useState(false);
+
+  const autoCollapsedOnceFlag = useRef(false); // 只自动收起一次
+
+  const dispatch = useDispatch();
 
   useEffect(() => {
     dispatch({
       type: 'Robot/getRobotInfo',
-      payload: { service: curRobot?.service },
+      payload: { service: Robot.info.service },
     });
   }, []);
 
@@ -50,24 +58,44 @@ const RobotLayout: React.FC<IProps> = ({
   });
 
   useEffect(() => {
-    if (autoCollapsed) {
+    if (showCollapsed && autoCollapsed && !collapsed && !autoCollapsedOnceFlag.current) {
       setCollapsed(true);
+      autoCollapsedOnceFlag.current = true;
     }
   }, [autoCollapsed]);
+
+  useEffect(() => {
+    if (showCollapsed && uploadEnd && !autoCollapsedOnceFlag.current) {
+      setCollapsed(true);
+      autoCollapsedOnceFlag.current = true;
+    }
+  }, [uploadEnd]);
+
+  useEffect(() => {
+    dispatch({
+      type: 'Robot/saveRobotInfo',
+      payload: {
+        viewUploadBtnVisible: collapsed,
+      },
+    });
+  }, [collapsed]);
 
   const onCollapsedHandle = () => {
     setCollapsed((pre) => !pre);
   };
 
   return (
-    <Row className={styles.container}>
+    <Row className={classNames(styles.container, styles['old-layout'])}>
       <Col
         className={classNames(styles.leftBar, 'leftViewContainer', {
           [styles.barCollapsed]: collapsed,
         })}
+        style={{ flexBasis: leftWidth, width: leftWidth }}
       >
         <div className={styles.leftBarAnimate}>
-          <div className={styles.leftBarContent}>{leftView}</div>
+          <div className={styles.leftBarContent} style={{ width: leftWidth }}>
+            {leftView}
+          </div>
         </div>
         {showCollapsed ? (
           <div
@@ -78,7 +106,7 @@ const RobotLayout: React.FC<IProps> = ({
           >
             {collapsed ? (
               <span className={styles.collapsedBarText}>
-                <span className={styles['collapsed-text']}>继续上传</span>
+                <span className={styles['collapsed-text']}>展开边栏</span>
                 <RightOutlined />
               </span>
             ) : (
@@ -96,7 +124,7 @@ const RobotLayout: React.FC<IProps> = ({
         <>
           <Col
             className={classNames(styles.mainContent, 'mainViewContainer', {
-              mainViewCollapsed: collapsed,
+              [styles.mainViewCollapsed]: collapsed,
             })}
             style={{ zIndex: 1 }}
           >
@@ -116,7 +144,7 @@ const RobotLayout: React.FC<IProps> = ({
               <Panel minSize={30} maxSize={60}>
                 <Col
                   className={classNames(styles.mainContent, 'mainViewContainer', {
-                    mainViewCollapsed: collapsed,
+                    [styles.mainViewCollapsed]: collapsed,
                   })}
                 >
                   {mainView}
@@ -141,7 +169,7 @@ const RobotLayout: React.FC<IProps> = ({
         ) : (
           <Col
             className={classNames(styles.mainContent, 'mainViewContainer', {
-              mainViewCollapsed: collapsed,
+              [styles.mainViewCollapsed]: collapsed,
             })}
             style={{ zIndex: 1 }}
           >
@@ -158,6 +186,6 @@ const RobotViewContainer = (props: any) => (
   </useUploadFormat.Provider>
 );
 
-const mapStateToProps = ({ Robot }: ConnectState) => ({ curRobot: Robot?.info });
+const mapStateToProps = ({ Robot }: ConnectState) => ({ curRobot: Robot?.info, Robot });
 
 export default connect(mapStateToProps)(RobotViewContainer);

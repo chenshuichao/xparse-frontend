@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="14px" height="14px" viewBox="0 0 14 14" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <g id="文档解析全局优化" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="标签状态交互" transform="translate(-1217, -847)" stroke="currentColor">
+            <g id="编组-3" transform="translate(1016, 838)">
+                <g id="编组-5" transform="translate(189, 0)">
+                    <g id="编组" transform="translate(12, 6)">
+                        <g id="icon_表格" transform="translate(0.875, 3.875)">
+                            <g id="编组" transform="translate(0, 0)">
+                                <g id="编组备份" stroke-width="0.875">
+                                    <path d="M10.9375,0.4375 C11.1791246,0.4375 11.3978746,0.535437711 11.5562184,0.693781566 C11.7145623,0.852125422 11.8125,1.07087542 11.8125,1.3125 L11.8125,10.5 C11.8125,10.8624369 11.6655934,11.1905619 11.4280777,11.4280777 C11.1905619,11.6655934 10.8624369,11.8125 10.5,11.8125 L1.75,11.8125 C1.38756313,11.8125 1.05943813,11.6655934 0.82192235,11.4280777 C0.584406566,11.1905619 0.4375,10.8624369 0.4375,10.5 L0.4375,1.75 C0.4375,1.38756313 0.584406566,1.05943813 0.82192235,0.82192235 C1.05943813,0.584406566 1.38756313,0.4375 1.75,0.4375 Z" id="矩形"></path>
+                                </g>
+                                <g id="编组-2" transform="translate(2.625, 2.625)" stroke-width="1.4">
+                                    <rect id="矩形备份" x="0.7" y="0.7" width="5.6" height="1" rx="0.5"></rect>
+                                    <rect id="矩形备份-2" x="0.7" y="3.915625" width="5.6" height="1" rx="0.5"></rect>
+                                    <rect id="矩形备份-3" x="0.7" y="7.13125" width="3.85" height="1" rx="0.5"></rect>
+                                </g>
+                            </g>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

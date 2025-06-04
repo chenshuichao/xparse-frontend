@@ -2,10 +2,15 @@ import { message } from 'antd';
 import { ReactComponent as CopyIcon } from '@/assets/icon/copy.svg';
 import { copy } from '@/utils';
 
-const CopyWrapper = ({ type }: { type?: 'content' }) => {
+const CopyWrapper = ({ type }: { type?: 'content' | 'image' }) => {
   const onCopyHandle = (e: any) => {
     try {
-      const wrapper: HTMLDivElement = e.currentTarget.parentElement;
+      let wrapper = e.currentTarget.parentElement as HTMLDivElement;
+      let loopNum = 0;
+      while (wrapper && !wrapper.className?.includes('content-container') && loopNum <= 3) {
+        wrapper = wrapper.parentElement as HTMLDivElement;
+        loopNum += 1;
+      }
       if (!wrapper || !wrapper.className?.includes('content-container'))
         throw new Error('no wrapper');
 
@@ -14,9 +19,18 @@ const CopyWrapper = ({ type }: { type?: 'content' }) => {
         copy(text);
         message.success('复制成功');
         return;
+      } else if (type === 'image') {
+        const img = wrapper.querySelector('img')?.cloneNode();
+        wrapper = wrapper.cloneNode() as HTMLDivElement;
+        if (img) wrapper.appendChild(img);
       }
 
       const node = wrapper.cloneNode(true) as HTMLDivElement;
+
+      const customTextarea = node.querySelectorAll('.custom-textarea');
+      if (customTextarea.length) {
+        customTextarea.forEach((item) => item.removeAttribute('contenteditable'));
+      }
 
       node.style.position = 'fixed';
       node.style.top = `200px`;

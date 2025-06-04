@@ -1,45 +1,408 @@
 .rightContainer {
   display: flex;
   flex: 1 1 auto;
-  flex-direction: column;
   height: 100%;
   overflow: hidden;
+  :global {
+    .ant-tabs {
+      width: 100%;
+    }
+    .ant-tabs-content {
+      width: 100%;
+      height: 100%;
+    }
+    .ant-tabs > .ant-tabs-nav {
+      padding-left: 30px;
+    }
+  }
+  .resultContainer {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+    .header {
+      display: flex;
+      flex: 0 0 auto;
+      align-items: flex-start;
+      justify-content: space-between;
+      cursor: pointer;
+
+      .markdownSwitch {
+        width: 24px;
+        margin: 10px 16px 0 0;
+      }
+
+      .autoSave {
+        display: flex;
+        align-items: center;
+        height: 32px;
+        margin: 10px 16px 0 0;
+        white-space: nowrap;
+      }
+    }
+
+    .radioBtnGroup {
+      margin: -8px 30px 8px;
+
+      label {
+        margin-top: 8px;
+      }
+
+      :global {
+        .ant-badge {
+          color: inherit;
+        }
+      }
+    }
+
+    .jsonViewWrapper {
+      padding: 0 20px;
+    }
+
+    .contentWrapper {
+      flex: 1 1 auto;
+      overflow-y: auto;
+    }
+  }
+
+  .aiLabel {
+    position: relative;
+    .aiLabelIcon {
+      position: absolute;
+      top: -8px;
+      right: -40px;
+      width: 40px;
+      color: #f5222d !important;
+      font-size: 11px;
+      text-shadow: none;
+      background: transparent;
+    }
+  }
+
+  .subTabWrapper {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: start;
+    margin: 0 30px 20px;
+    white-space: nowrap;
+    column-gap: 12px;
+
+    .subTab {
+      position: relative;
+      width: 122px;
+      height: 64px;
+      padding: 8px;
+      background: #f2f4f7;
+      border-radius: 4px;
+      cursor: pointer;
+      &:hover {
+        background: rgba(225, 228, 235, 0.8);
+      }
+      &.active {
+        background: #e1e4eb;
+        border: 1px solid rgba(26, 102, 255, 0.5);
+      }
+      .subTabLabelRow {
+        column-gap: 4px;
+        .subTabLabel {
+          color: #000000;
+          font-weight: 600;
+          font-size: 12px;
+          line-height: 16px;
+        }
+        .count {
+          color: #757a85;
+          font-weight: 400;
+          font-size: 12px;
+          line-height: 16px;
+        }
+      }
+      .icon {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        height: 100%;
+      }
+    }
+  }
+}
+
+@media only screen and (max-width: 1650px) {
+  .rightContainer {
+    :global {
+      .ant-tabs .ant-radio-button-wrapper {
+        padding: 0 10px;
+      }
+    }
+  }
+}
+
+@media only screen and (max-width: 1500px) {
+  .rightContainer {
+    :global {
+      .ant-tabs .ant-radio-button-wrapper {
+        padding: 0 8px;
+      }
+    }
+  }
+
+  .new-right-view {
+    .header {
+      svg {
+        display: none;
+      }
+    }
+  }
+}
+
+.new-tag {
+  // color: transparent !important;
+  font-size: 12px;
+  font-family: Arial;
+  background: transparent !important;
+  // background: linear-gradient(315deg, #d94141 50%, #928ae6 60%) !important;
+  // background-clip: text !important;
+  zoom: 0.66;
+}
+
+span.new-tag {
+  .new-tag;
+}
+
+:global {
+  .ant-tabs-dropdown-menu {
+    span[class*='new-tag'] {
+      position: relative;
+      top: -10px;
+    }
+  }
+}
+
+.new-right-view {
+  .subTabWrapper {
+    margin: 0 20px 20px;
+  }
+  :global {
+    .ant-tabs > .ant-tabs-nav {
+      margin: 0;
+      padding-left: 30px;
+
+      &::before {
+        display: none;
+      }
+      .ant-tabs-ink-bar {
+        display: none;
+      }
+      .ant-tabs-tab {
+        padding: 11px 0;
+        color: #757a85;
+        font-weight: bold;
+
+        & + .ant-tabs-tab {
+          margin: 0 0 0 20px;
+        }
+
+        &.ant-tabs-tab-active {
+          .ant-tabs-tab-btn {
+            color: #000;
+            text-shadow: none;
+          }
+        }
+
+        &:hover {
+          .ant-tabs-tab-btn {
+            color: @text-color;
+          }
+        }
+      }
+    }
+  }
+
+  .aiLabel .aiLabelIcon {
+    .new-tag;
+  }
 
   .header {
-    display: flex;
-    flex: 0 0 auto;
-    align-items: flex-start;
-    justify-content: space-between;
-    cursor: pointer;
+    position: relative;
 
-    .markdownSwitch {
-      width: 24px;
-      margin: 20px 16px 0 0;
+    :global {
+      .ant-radio-group {
+        display: flex;
+        width: 100%;
+        margin: 0 0px 20px;
+      }
+
+      .ant-radio-button-wrapper {
+        flex: 1 1 auto;
+        margin-top: 0 !important;
+        color: #000;
+        white-space: nowrap;
+        background-color: #f2f4f7;
+        border: 0;
+        box-shadow: none !important;
+        transition: 0.3s;
+
+        .radio-content {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+
+          svg {
+            margin-right: 4px;
+          }
+        }
+
+        &.ant-radio-button-wrapper-checked {
+          color: #fff !important;
+          background-color: #000;
+        }
+
+        &::before {
+          display: none;
+        }
+
+        &.json {
+          margin-right: 2px;
+        }
+
+        &.table {
+          color: #0e854d;
+          background-color: #e1faee;
+
+          &.ant-radio-button-wrapper-checked {
+            background-color: #11a35f;
+          }
+        }
+
+        &.image {
+          color: #996f0c;
+          background-color: #fcf4de;
+
+          &.ant-radio-button-wrapper-checked {
+            background-color: #bd8d1c;
+          }
+        }
+
+        &.formula {
+          color: #ba3434;
+          background-color: #ffebeb;
+
+          &.ant-radio-button-wrapper-checked {
+            background-color: #d94141;
+          }
+        }
+
+        &.handwriting {
+          color: #8223b3;
+          background-color: #f6e6ff;
+
+          &.ant-radio-button-wrapper-checked {
+            background-color: #9c32d1;
+          }
+        }
+
+        &.header_footer {
+          color: #4b5873;
+          background-color: #ebeff7;
+
+          &.ant-radio-button-wrapper-checked {
+            background-color: #5c7099;
+          }
+        }
+      }
+
+      .ant-badge {
+        color: inherit;
+      }
     }
+  }
 
-    .autoSave {
+  .edit-btn-wrapper {
+    position: absolute;
+    top: 26px;
+    right: 0;
+
+    img {
+      margin-right: 20px;
+    }
+  }
+}
+
+.tab-bar-extra {
+  display: flex;
+  align-items: center;
+  padding: 0 20px 0 12px;
+
+  .tab-bar-ads {
+    a {
+      display: flex !important;
+      align-items: center;
+      img {
+        margin-right: 8px;
+      }
+    }
+  }
+
+  .tab-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    margin-left: 12px;
+    padding: 0;
+    border-radius: 2px;
+
+    button {
       display: flex;
       align-items: center;
-      height: 32px;
-      margin: 20px 16px 0 0;
-      white-space: nowrap;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      padding: 0;
+      border-radius: 2px;
+    }
+
+    &:hover {
+      background-color: #f2f4f7;
+    }
+
+    &.tab-text {
+      width: auto;
+      padding: 0 12px;
+      color: @primary-color;
+      border: 1px solid #91b5ff;
+
+      > span:last-child {
+        margin-left: 4px;
+      }
+
+      :global {
+        .anticon-spin {
+          padding-right: 0;
+        }
+      }
     }
   }
 
-  .radioBtnGroup {
-    margin: 12px 30px;
+  .autoSave {
+    display: flex;
 
-    label {
-      margin-top: 8px;
+    button {
+      margin-left: 8px;
     }
   }
+}
 
-  .jsonViewWrapper {
-    padding: 0 20px;
-  }
+.menu-box {
+  .menu-item {
+    display: flex;
+    align-items: center;
 
-  .contentWrapper {
-    flex: 1 1 auto;
-    overflow-y: auto;
+    svg {
+      margin-right: 8px;
+    }
   }
 }

@@ -15,6 +15,8 @@ import PDFViewer from '../PDFViewer';
 import OFDToImage from '../OFDToImage';
 import TiffToImage from '../TiffToImage';
 import PDFRenderViewer from '../PDFViewer/pdfRender';
+import type { VirtuosoHandle } from 'react-virtuoso';
+import ExcelViewer from '../ExcelViewer';
 interface ICallBackProps {
   imgRef: React.MutableRefObject<HTMLImageElement | null>;
 }
@@ -31,11 +33,16 @@ export interface ImageProps
   clearList?: () => void;
   wrapperClassName?: string;
   wrapperStyle?: React.CSSProperties;
+  fileNameStyle?: React.CSSProperties;
   placeholder?: React.ReactNode;
   fallback?: string;
   currentFile?: IFile;
   docConvertToPDF?: boolean;
   reserveExif?: boolean;
+  pagesLoading?: boolean;
+  viewerVirtuosoRef?: React.RefObject<VirtuosoHandle>;
+  resultVirtuosoRef?: React.RefObject<VirtuosoHandle>;
+  getResultItemIndex?: (pageNumber: number) => number;
 }
 type ImageStatus = 'normal' | 'error' | 'loading' | 'wait';
 
@@ -68,6 +75,7 @@ const Image: React.FC<ImageProps> = ({
   currentFile,
   docConvertToPDF = true,
   reserveExif,
+  resultVirtuosoRef,
 }) => {
   const { info: robotInfo } = useSelector(({ Robot, Common }: ConnectState) => ({
     info: Robot.info,
@@ -83,7 +91,7 @@ const Image: React.FC<ImageProps> = ({
   const isError = status === 'error';
   const hasRobotMark = React.isValidElement(children) && React.Children.only(children);
 
-  const { isPDF, isDoc, isOFD, isTiff } = useMemo(() => {
+  const { isPDF, isDoc, isOFD, isTiff, isExcel } = useMemo(() => {
     const { type } = getFileNameAndType(currentFile?.name || '');
     if (['pdf', 'doc', 'docx'].includes(type) || currentFile?.isPDF) {
       return { isPDF: true, isDoc: docConvertToPDF ? false : ['doc', 'docx'].includes(type) };
@@ -94,6 +102,8 @@ const Image: React.FC<ImageProps> = ({
       (currentFile?.canToggle ? currentFile.hiddenRects : true)
     ) {
       return { isTiff: true };
+    } else if (['xlsx', 'xls'].includes(type)) {
+      return { isExcel: true };
     }
     return {};
   }, [currentFile?.name]);
@@ -289,10 +299,18 @@ const Image: React.FC<ImageProps> = ({
               }}
             />
           )}
+          {isExcel && (
+            <ExcelViewer
+              key={currentFile?.img_uri}
+              currentFile={currentFile}
+              resultVirtuosoRef={resultVirtuosoRef}
+            />
+          )}
           {!noImage && isError && fallback && <img {...imgCommonProps} src={fallback} />}
           {!isError &&
             src &&
-            (!noImage || (!useDocparserImg && !pdfView && !isPDF && !isTiff && !isOFD)) && (
+            (!noImage ||
+              (!useDocparserImg && !pdfView && !isPDF && !isTiff && !isOFD && !isExcel)) && (
               <img
                 {...imgCommonProps}
                 onLoad={onLoad}
@@ -305,7 +323,7 @@ const Image: React.FC<ImageProps> = ({
                 }}
               />
             )}
-          {hasRobotMark && !customPreview && (
+          {hasRobotMark && !customPreview && !isExcel && (
             <div
               className={classNames(`${prefixCls}-robot-mark`, {
                 [`${prefixCls}-noTransition`]: noTransition, // 旋转的动画
@@ -327,12 +345,14 @@ const Image: React.FC<ImageProps> = ({
         </div>
       </div>
       <div
-        className={classNames({
+        className={classNames(`${prefixCls}-operations-box`, {
           [styles['custom-viewer-footer']]: customPreview,
         })}
       >
         <ul className={`${prefixCls}-operations`} onMouseEnter={() => setShowTransition(true)}>
+          {isExcel && <div className={styles.fileName}>{currentFile?.name}</div>}
           {status === 'normal' &&
+            !isExcel &&
             tools.map(({ Icon: IconSvg, onClick, type, disabled, ...props }) => {
               return (
                 <li

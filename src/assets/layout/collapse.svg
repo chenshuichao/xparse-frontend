@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <defs>
+        <rect id="path-1" x="0" y="0" width="16" height="16"></rect>
+    </defs>
+    <g id="文档解析全局优化" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="工作台使用-通用文档解析-目录展开-1920" transform="translate(-226, -14)">
+            <g id="编组-28" transform="translate(228, 0)">
+                <g id="icon/ic_page_odd" transform="translate(6, 22) scale(-1, 1) rotate(-90) translate(-6, -22)translate(-2, 14)">
+                    <mask id="mask-2" fill="white">
+                        <use xlink:href="#path-1"></use>
+                    </mask>
+                    <g id="矩形"></g>
+                    <g id="编组" mask="url(#mask-2)" fill="#959BA6" fill-rule="nonzero">
+                        <g transform="translate(4, 6)" id="路径">
+                            <polygon points="4 4 0 0 8 0"></polygon>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

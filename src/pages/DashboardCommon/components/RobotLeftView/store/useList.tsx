@@ -179,7 +179,7 @@ const useList = () => {
       .map(([key, value]) => key);
     setList((list) => {
       list.forEach((item) => {
-        if (loadings.includes(item.id as string)) {
+        if (loadings.includes(String(item.id))) {
           item.status = 'recognize';
         }
       });

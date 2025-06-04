@@ -1,11 +1,17 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { createContainer } from 'unstated-next';
 import lodash, { cloneDeep } from 'lodash';
+import type { VirtuosoHandle } from 'react-virtuoso';
 import type Vditor from 'vditor';
 import type { IFileItem, IImgResult, IItemList, IRectListItem, KeyTypeEnum } from '../data';
 import type { IRectItem } from '../../RobotMarkdown/utils';
 import { isMarkdownHeader, jsonToMarkdown, splitMarkdownHeader } from '../../RobotMarkdown/utils';
 import { getParamsSettings } from '../../components/ParamsSettings/utils';
+import { useUpdateEffect } from 'ahooks';
+import { ResultType } from '../containers/RightView/RightView';
+import { getCatalogData } from '../containers/Catalog';
+import useGetState from '@/utils/hooks/useGetState';
+import { ensureArray, ensureNumber, isEmpty, isNumber } from '@/utils/objectUtils';
 
 export interface ResultJsonUpdateParams {
   value: string;
@@ -36,6 +42,85 @@ const useStore = () => {
     () => _showModifiedMarkdown && resultJson?.detail_new,
     [_showModifiedMarkdown, resultJson],
   );
+
+  const [resultType, setResultType, getLatestResultType] = useGetState<ResultType>(ResultType.md);
+  const [subType, setSubType] = useState<ResultType>();
+
+  const { hasCatalog, catalogData } = useMemo(() => {
+    const catalog = currentFile?.result?.catalog;
+    const catalogData = getCatalogData(catalog);
+    return { hasCatalog: ensureArray(catalogData).length > 0, catalogData };
+  }, [currentFile?.result?.catalog]);
+
+  // 虚拟滚动容器
+  const viewerVirtuosoRef = useRef<VirtuosoHandle>(null);
+  const resultVirtuosoRef = useRef<VirtuosoHandle>(null);
+
+  // 解析结果滚动容器
+  const resultScrollerRef = useRef<HTMLDivElement>(null);
+
+  // 切换tab滚动到开头
+  useUpdateEffect(() => {
+    if (resultType === ResultType.md) {
+      viewerVirtuosoRef?.current?.scrollToIndex({
+        index: 0,
+        align: 'start',
+      });
+    }
+    resultVirtuosoRef?.current?.scrollToIndex({
+      index: 0,
+      align: 'start',
+    });
+  }, [resultType]);
+
+  const pagesIndexMapRef = useRef<Record<number, number>>({});
+  const startPageNumberRef = useRef(1);
+
+  const setPageIndexMap = (rects: IRectItem[][]) => {
+    pagesIndexMapRef.current = {};
+    const displayData: IRectItem[][] = [];
+    for (let index = 0; index < rects.length; index++) {
+      const item = rects[index]?.filter((e) => !(e.type === 'catalog' || e._from_split));
+      if (!isEmpty(item)) {
+        displayData.push(item);
+        const firstPageNumber = ensureNumber(item[0]?.page_id);
+        const lastPageNumber = ensureNumber(item[item.length - 1]?.page_id);
+        for (let pageNumber = firstPageNumber; pageNumber <= lastPageNumber; pageNumber++) {
+          pagesIndexMapRef.current[pageNumber] = displayData.length - 1;
+        }
+      }
+    }
+    return displayData;
+  };
+
+  const getStartPageNumber = () => ensureNumber(startPageNumberRef.current || 1);
+
+  const getViewerItemIndex = (pageNumber: number) => {
+    return pageNumber - getStartPageNumber();
+  };
+
+  const getResultItemIndex = (pageNumber: number) => {
+    let resultItemIndex = pagesIndexMapRef.current?.[pageNumber];
+    // 找不到说明是跨页合并，向前找一个最近的
+    if (!isNumber(resultItemIndex)) {
+      const sortedEntries = Object.entries(pagesIndexMapRef.current)
+        .map(([k, v]) => ({ key: Number(k), value: v }))
+        .sort((a, b) => a.key - b.key);
+      let left = 0;
+      let right = sortedEntries.length - 1;
+      while (left <= right) {
+        const mid = Math.floor((left + right) / 2);
+        const { key, value } = sortedEntries[mid];
+        if (key < pageNumber) {
+          resultItemIndex = value;
+          left = mid + 1;
+        } else {
+          right = mid - 1;
+        }
+      }
+    }
+    return resultItemIndex;
+  };
 
   // 文件切换重置编辑状态
   useEffect(() => {
@@ -161,11 +246,17 @@ const useStore = () => {
   };
 
   return {
+    type: 'new',
     currentFile,
     setCurrentFile,
     rawResultJson,
     resultJson,
     setResultJson,
+    resultType,
+    setResultType,
+    getLatestResultType,
+    subType,
+    setSubType,
     itemList,
     setItemList,
     tableList,
@@ -180,6 +271,9 @@ const useStore = () => {
     setMarkdownMode,
     updateResultJson,
     markdownEditorRef,
+    resultScrollerRef,
+    viewerVirtuosoRef,
+    resultVirtuosoRef,
     showModifiedMarkdown,
     setShowModifiedMarkdown,
     showAutoSave,
@@ -188,6 +282,13 @@ const useStore = () => {
     setAutoSaveMarkdown,
     saveResultJson,
     resultJsonSaveLoading,
+    catalogData,
+    hasCatalog,
+    pagesIndexMapRef,
+    setPageIndexMap,
+    getResultItemIndex,
+    getStartPageNumber,
+    getViewerItemIndex,
   };
 };
 export const storeContainer = createContainer(useStore);

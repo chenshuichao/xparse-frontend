@@ -9,6 +9,10 @@ import {
   getCellId,
   getPageNumberFromActiveContent,
 } from './utils';
+import { isElementInContainerViewport, scrollIntoViewIfNeeded } from '@/utils/dom';
+import type { ISectionLine } from '@/components/SvgRect/SectionLine';
+import { formatLine, formatTableLine } from '@/components/SvgRect/SectionLine';
+import { ensureNumber } from '@/utils/objectUtils';
 
 const rectClass = 'rectLayer';
 
@@ -19,6 +23,7 @@ interface ICell {
 export interface IRect {
   position: number[];
   type: string;
+  rect_type?: string;
   content_id: number;
   angle?: number;
   render_text?: string;
@@ -26,6 +31,8 @@ export interface IRect {
   split_section_positions?: number[][];
   split_cells?: ICell[];
   cells?: ICell;
+  next_section?: { next_page?: boolean; position: number[] };
+  active?: number;
 }
 
 let observer: MutationObserver;
@@ -94,7 +101,17 @@ const clickHandle = (e: any, { viewerRef }: { viewerRef: any }) => {
           svgPoint.y > y &&
           svgPoint.y <= y + height
         ) {
-          wrapper.classList.toggle('cell-g-hidden');
+          const sameTables = document.querySelectorAll(
+            `[data-content-id="${wrapper.dataset.contentId}"]`,
+          );
+          const exist = wrapper.classList.contains('cell-g-hidden');
+          sameTables.forEach((tb) => {
+            if (exist) {
+              tb.classList.remove('cell-g-hidden');
+            } else {
+              tb.classList.add('cell-g-hidden');
+            }
+          });
           removeCellActive(wrapper);
           return;
         }
@@ -104,6 +121,7 @@ const clickHandle = (e: any, { viewerRef }: { viewerRef: any }) => {
         if (
           chdDom.nodeName === 'polygon' &&
           !chdDom.classList.contains('catalog') &&
+          chdDom.dataset.active !== '0' &&
           chdDom.isPointInFill(svgPoint)
         ) {
           const oldActivePolygons = viewer.querySelectorAll('polygon.active');
@@ -195,12 +213,14 @@ export function initObserve({
   viewerRef,
   dpi,
   currentFile,
+  disablePageChangeScroll,
 }: {
   target: any;
   rects?: IRect[][];
   viewerRef?: any;
   dpi?: number;
   currentFile: any;
+  disablePageChangeScroll?: boolean;
 }) {
   if (!target || !rects || !viewerRef || !MutationObserver) return;
   const pdfViewDpi = 96;
@@ -292,8 +312,12 @@ export function initObserve({
         if (activeId && activeId === `${rect.content_id}`) {
           polygon.classList.add('active');
         }
-        if (rect.type) {
-          polygon.classList.add(rect.type);
+        if (typeof rect.active === 'number') {
+          polygon.setAttribute('data-active', `${rect.active}`);
+        }
+        const rect_type = rect.rect_type || rect.type;
+        if (rect_type) {
+          polygon.classList.add(rect_type);
         }
         const textScale = 1 / scale / dpiScale;
         if (rect.render_text) {
@@ -349,8 +373,8 @@ export function initObserve({
             if (activeId && activeId === cellId) {
               cellPolygon.classList.add('active');
             }
-            if (rect.type) {
-              cellPolygon.classList.add(rect.type);
+            if (rect_type) {
+              cellPolygon.classList.add(rect_type);
             }
             group.appendChild(cellPolygon);
           }
@@ -373,6 +397,44 @@ export function initObserve({
         } else {
           svgDom.appendChild(polygon);
         }
+        // 段落合并/表格合并的连接线
+        if (rect.next_section) {
+          const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+          const setLint = (linePoints: ISectionLine) => {
+            const point = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            point.setAttribute('r', `${linePoints.point.r}`);
+            point.setAttribute('cx', `${linePoints.point.cx}`);
+            point.setAttribute('cy', `${linePoints.point.cy}`);
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+            line.setAttribute('points', linePoints.line);
+            const arrow = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            arrow.setAttribute('d', linePoints.arrow);
+            group.appendChild(point);
+            group.appendChild(line);
+            group.appendChild(arrow);
+          };
+          if (rect.cells) {
+            group.setAttribute('class', 'section-line section-table');
+            const lines = formatTableLine({
+              next_section: rect.next_section,
+              position: rect.position,
+              viewBox: { width: viewBoxWidth, height: viewBoxHeight, viewRate: textScale },
+              viewAngle: rotate,
+              cells: rect.cells,
+            });
+            lines.map((line) => setLint(line));
+          } else {
+            group.setAttribute('class', 'section-line');
+            const line = formatLine({
+              next_section: rect.next_section,
+              position: rect.position,
+              viewBox: { width: viewBoxWidth, height: viewBoxHeight, viewRate: textScale },
+              viewAngle: rotate,
+            });
+            if (line) setLint(line);
+          }
+          svgDom.appendChild(group);
+        }
         if (!isOver) {
           isOver =
             rect.position[2] - viewBoxWidth > 5 ||
@@ -387,6 +449,20 @@ export function initObserve({
           svgDom,
           pageItem.children[1] || pageItem.children[pageItem.children.length - 1],
         );
+      }
+      // 头尾插入页码标记
+      if (page) {
+        const pageNumber = ensureNumber(page);
+        const startDom = document.createElement('div');
+        startDom.style.position = 'relative';
+        startDom.style.top = '-4px';
+        startDom.setAttribute('data-page-split-line-number', String(pageNumber - 1));
+        pageItem.prepend(startDom);
+        const endDom = document.createElement('div');
+        endDom.style.position = 'relative';
+        endDom.style.bottom = '-4px';
+        endDom.setAttribute('data-page-split-line-number', String(pageNumber));
+        pageItem.appendChild(endDom);
       }
     }
   };
@@ -469,9 +545,17 @@ export function initObserve({
     viewerRef.eventBus.off('pagechanging', pagechangingBind);
   }
   pagechangingBind = (params: { pageNumber: number; previous: number }) => {
+    if (disablePageChangeScroll) {
+      return;
+    }
+
     const curPageContentList: HTMLElement[] = target.querySelectorAll(
       `.page[data-page-number="${params.pageNumber}"] .${rectClass} [data-content-id]`,
     );
+    const curPageActiveContent = Array.from(curPageContentList)?.find((ele) =>
+      ele.classList.contains('active'),
+    );
+
     let curPageFirstContent: HTMLElement | undefined;
     const itemHandle = (item: HTMLElement) => {
       if (
@@ -524,11 +608,20 @@ export function initObserve({
       }
       scrollToResultTarget(detail);
     } else {
-      const targetContent = document.querySelector(
-        `.${resultClass} [data-content-id="${contentId}"]`,
-      );
-      if (targetContent) {
-        targetContent.scrollIntoView(scrollOption);
+      if (curPageActiveContent && isElementInContainerViewport(curPageActiveContent, target)) {
+        // do nothing
+      } else {
+        const targetContent = document.querySelector<HTMLElement>(
+          `.${resultClass} [data-content-id="${contentId}"]`,
+        );
+        if (targetContent) {
+          scrollIntoViewIfNeeded(
+            targetContent,
+            target,
+            scrollOption,
+            targetContent?.getBoundingClientRect().height,
+          );
+        }
       }
     }
   };

@@ -55,10 +55,18 @@ export default memo<IProps>(({ cells, type, rate, points, uid, onClick, activeId
   const toggleShow = (e: any) => {
     const wrapper = e.target.parentElement as SVGGElement;
     if (wrapper) {
-      wrapper.classList.toggle('cell-g-hidden');
-      if (wrapper.classList.contains('cell-g-hidden')) {
-        removeCellActive(wrapper);
-      }
+      const sameTables = document.querySelectorAll(
+        `[data-content-id="${wrapper.dataset.contentId}"]`,
+      );
+      const exist = wrapper.classList.contains('cell-g-hidden');
+      sameTables.forEach((tb) => {
+        if (exist) {
+          tb.classList.remove('cell-g-hidden');
+        } else {
+          tb.classList.add('cell-g-hidden');
+        }
+      });
+      removeCellActive(wrapper);
     }
   };
 

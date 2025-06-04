@@ -9,4 +9,6 @@ export interface IRectListItem {
    * @description  段落,列表,图像,印章,公式,水印,表格,页眉页脚
    * */
   type?: string;
+  next_section?: { next_page?: boolean; position: number[] };
+  active?: number;
 }

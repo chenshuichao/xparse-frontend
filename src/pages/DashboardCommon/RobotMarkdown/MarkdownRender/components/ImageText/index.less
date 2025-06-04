@@ -1,0 +1,78 @@
+.image-text {
+  position: relative;
+  margin-top: 12px;
+  // padding: 8px 12px;
+  color: @text-gray-color;
+  font-size: 12px;
+  line-height: 18px;
+  // border: 1px dashed #dcdfe5;
+
+  &.expand {
+    word-wrap: break-word;
+
+    .text-content {
+      max-height: none;
+    }
+
+    .text-desc {
+      color: @text-gray-color;
+      text-align: right;
+    }
+
+    .collapse-btn {
+      margin-left: 8px;
+      cursor: pointer;
+
+      svg {
+        transform: rotateZ(90deg) translateX(4px);
+      }
+
+      &:hover svg path {
+        fill: @primary-color;
+      }
+    }
+  }
+
+  &.show {
+    word-break: break-all;
+  }
+
+  .text-content {
+    max-height: 36px;
+    overflow: hidden;
+
+    &::before {
+      float: right;
+      height: 18px;
+      content: '';
+    }
+
+    p {
+      margin-bottom: 0;
+    }
+  }
+
+  .expand-btn {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    float: right;
+    clear: both;
+    width: 40px;
+    background-color: #fff;
+    cursor: pointer;
+
+    &::before {
+      padding-right: 8px;
+      content: '...';
+    }
+
+    svg {
+      transform: rotateZ(-90deg) translateX(-2px);
+    }
+
+    &:hover svg path {
+      fill: @primary-color;
+    }
+  }
+}

@@ -32,9 +32,11 @@ import TipsBanner from './TipsBanner';
 const RecognizeParamsSettings = ({
   disabled,
   currentFile,
+  inline,
 }: {
   disabled?: boolean;
   currentFile?: any;
+  inline?: boolean;
 }) => {
   const [open, setOpen] = useState(false);
 
@@ -171,102 +173,108 @@ const RecognizeParamsSettings = ({
     message.success('重置成功');
   };
 
+  const ParamsBtn = (
+    <Popover
+      trigger="click"
+      placement="bottomLeft"
+      overlayClassName={styles['popover-overlay']}
+      // getPopupContainer={(node: HTMLElement) => node.parentElement as HTMLElement}
+      title={null}
+      visible={open}
+      onVisibleChange={(visible) => setOpen(visible)}
+      content={
+        <div ref={wrapperRef}>
+          <div className={styles.bannerWrapper}>
+            <TipsBanner text={getParamsSettingBannerTips(service)} />
+          </div>
+          <Form form={form} className={styles.formWrapper}>
+            {formItems.map((item) => {
+              let content = <Input style={{ width: 120 }} placeholder="请输入" />;
+              if (item.switchEnums) {
+                content = <Switch />;
+              } else if (item.valueEnums) {
+                content = (
+                  <Select placeholder="请选择" style={{ width: 120 }} options={item.valueEnums} />
+                );
+              } else if (item.type === 'integer') {
+                content = (
+                  <InputNumber placeholder="请输入" style={{ width: 120 }} {...item.props} />
+                );
+              }
+              return (
+                <Tooltip
+                  key={item.name}
+                  title={<div dangerouslySetInnerHTML={{ __html: item.desc }} />}
+                  overlayClassName={styles.labelTooltips}
+                  color="#fff"
+                  placement="right"
+                >
+                  <Form.Item
+                    key={item.name}
+                    name={item.name}
+                    label={
+                      <>
+                        <span>{item.label}</span>
+                        {item.tag && <span className={styles.labelTag}>{item.tag}</span>}
+                      </>
+                    }
+                    className={classNames({ [styles.hasTag]: item.tag })}
+                    valuePropName={item.valuePropName}
+                  >
+                    {content}
+                  </Form.Item>
+                </Tooltip>
+              );
+            })}
+          </Form>
+          <div className={styles.footerWrapper}>
+            <div className={styles.footerText}>
+              {currentFile?.result?.version && (
+                <div className={styles.versionInfo}>
+                  <QuestionToolTips
+                    title={`引擎版本：${currentFile.result.version}`}
+                    defaultPopupContainer
+                  >
+                    <InfoCircleOutlined />
+                  </QuestionToolTips>
+                </div>
+              )}
+              <span className={styles.tipsDesc}>参数调整仅对新的识别生效</span>
+            </div>
+            <Space size={12} className={styles.footerBtn}>
+              <Button type="default" onClick={onReset}>
+                重置
+              </Button>
+              <Button type="primary" onClick={onSave}>
+                确定
+              </Button>
+            </Space>
+          </div>
+        </div>
+      }
+    >
+      <div className={styles.buttons}>
+        <Button
+          className={classNames(styles.settingsBtn, {
+            [styles.settingsBtnActive]: open,
+            robot_tour_step_1: true,
+          })}
+          type="default"
+          disabled={disabled}
+          onClick={showSettings}
+        >
+          参数配置
+        </Button>
+      </div>
+    </Popover>
+  );
+
+  if (inline) return ParamsBtn;
+
   return (
     <div className={classNames(styles.container)}>
       <div className={styles.sectionLabel}>服务配置</div>
-      <Popover
-        trigger="click"
-        placement="bottomLeft"
-        overlayClassName={styles['popover-overlay']}
-        // getPopupContainer={(node: HTMLElement) => node.parentElement as HTMLElement}
-        title={null}
-        visible={open}
-        onVisibleChange={(visible) => setOpen(visible)}
-        content={
-          <div ref={wrapperRef}>
-            <div className={styles.bannerWrapper}>
-              <TipsBanner text={getParamsSettingBannerTips(service)} />
-            </div>
-            <Form form={form} className={styles.formWrapper}>
-              {formItems.map((item) => {
-                let content = <Input style={{ width: 120 }} placeholder="请输入" />;
-                if (item.switchEnums) {
-                  content = <Switch />;
-                } else if (item.valueEnums) {
-                  content = (
-                    <Select placeholder="请选择" style={{ width: 120 }} options={item.valueEnums} />
-                  );
-                } else if (item.type === 'integer') {
-                  content = (
-                    <InputNumber placeholder="请输入" style={{ width: 120 }} {...item.props} />
-                  );
-                }
-                return (
-                  <Tooltip
-                    key={item.name}
-                    title={<div dangerouslySetInnerHTML={{ __html: item.desc }} />}
-                    overlayClassName={styles.labelTooltips}
-                    color="#fff"
-                    placement="right"
-                  >
-                    <Form.Item
-                      key={item.name}
-                      name={item.name}
-                      label={
-                        <>
-                          <span>{item.label}</span>
-                          {item.tag && <span className={styles.labelTag}>{item.tag}</span>}
-                        </>
-                      }
-                      className={classNames({ [styles.hasTag]: item.tag })}
-                      valuePropName={item.valuePropName}
-                    >
-                      {content}
-                    </Form.Item>
-                  </Tooltip>
-                );
-              })}
-            </Form>
-            <div className={styles.footerWrapper}>
-              <div className={styles.footerText}>
-                {currentFile?.result?.version && (
-                  <div className={styles.versionInfo}>
-                    <QuestionToolTips
-                      title={`引擎版本：${currentFile.result.version}`}
-                      defaultPopupContainer
-                    >
-                      <InfoCircleOutlined />
-                    </QuestionToolTips>
-                  </div>
-                )}
-                <span className={styles.tipsDesc}>参数调整仅对新的识别生效</span>
-              </div>
-              <Space size={12} className={styles.footerBtn}>
-                <Button type="default" onClick={onReset}>
-                  重置
-                </Button>
-                <Button type="primary" onClick={onSave}>
-                  确定
-                </Button>
-              </Space>
-            </div>
-          </div>
-        }
-      >
-        <div className={styles.buttons}>
-          <Button
-            className={classNames(styles.settingsBtn, {
-              [styles.settingsBtnActive]: open,
-              robot_tour_step_1: true,
-            })}
-            type="default"
-            disabled={disabled}
-            onClick={showSettings}
-          >
-            参数配置
-          </Button>
-        </div>
-      </Popover>
+      {ParamsBtn}
     </div>
   );
 };

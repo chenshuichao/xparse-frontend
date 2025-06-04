@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="14px" height="14px" viewBox="0 0 14 14" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <g id="文档解析全局优化" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="标签状态交互" transform="translate(-1586, -847)" stroke="currentColor" stroke-width="0.875">
+            <g id="编组-3" transform="translate(1016, 838)">
+                <g id="编组-5" transform="translate(189, 0)">
+                    <g id="页眉页脚" transform="translate(369, 0)">
+                        <g id="编组" transform="translate(12, 6)">
+                            <g id="编组" transform="translate(0.875, 3.875)">
+                                <path d="M9.44378157,0.4375 L11.6843592,2.67807765 L11.8125,10.5 C11.8125,10.8624369 11.6655934,11.1905619 11.4280777,11.4280777 C11.1905619,11.6655934 10.8624369,11.8125 10.5,11.8125 L1.75,11.8125 C1.38756313,11.8125 1.05943813,11.6655934 0.82192235,11.4280777 C0.584406566,11.1905619 0.4375,10.8624369 0.4375,10.5 L0.4375,1.75 C0.4375,1.38756313 0.584406566,1.05943813 0.82192235,0.82192235 C1.05943813,0.584406566 1.38756313,0.4375 1.75,0.4375 L9.44378157,0.4375 Z" id="矩形"></path>
+                                <rect id="矩形" x="2.1875" y="3.0625" width="1.75" height="1" rx="0.4375"></rect>
+                                <rect id="矩形备份" x="3.9375" y="10.0625" width="6.125" height="1" rx="0.4375"></rect>
+                                <path d="M8.75,1.98951966e-13 L8.75,2.625 C8.75,3.10824916 9.14175084,3.5 9.625,3.5 L12.25,3.5 L12.25,3.5" id="路径-3"></path>
+                            </g>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

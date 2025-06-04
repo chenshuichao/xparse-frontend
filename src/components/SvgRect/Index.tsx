@@ -5,6 +5,7 @@ import { useSize } from 'ahooks';
 import RectText from './Text';
 import type { IViewBox } from './Cell';
 import Cell from './Cell';
+import { SectionLine, SectionTableLine } from './SectionLine';
 import { IRectListItem } from './data.d';
 import styles from './Index.less';
 import {
@@ -50,6 +51,7 @@ interface IProps {
   className?: string;
   pageNumber?: number | string;
   hiddenOverRange?: boolean;
+  viewAngle?: number;
 }
 
 /**
@@ -67,14 +69,15 @@ export default ({
   onClick = () => {},
   autoLink,
   pageNumber = '1',
-  hiddenOverRange = true,
+  hiddenOverRange = false,
+  viewAngle,
 }: IProps) => {
   const [activeId, setActiveId] = useState<string | number>(-1);
   const [isOverRange, setIsOverRange] = useState(false);
   const [viewBox, setViewBox] = useState<IViewBox>();
   const svgRef = useRef<SVGSVGElement>(null);
 
-  const wrapperSize = useSize(document.querySelector('.textin-image-robot-mark') as HTMLElement);
+  const wrapperSize = useSize(svgRef as unknown as HTMLElement);
 
   useEffect(() => {
     if (focusId) {
@@ -98,19 +101,21 @@ export default ({
           clientHeight = height;
         }
         setViewBox({ width: clientWidth, height: clientHeight, viewRate });
-        const isOver = rectList.some(
-          ({ points }) =>
-            points[2] * rate - clientWidth > 5 ||
-            points[4] * rate - clientWidth > 5 ||
-            points[5] * rate - clientHeight > 5 ||
-            points[7] * rate - clientHeight > 5,
-        );
-        setIsOverRange(isOver);
+        if (hiddenOverRange) {
+          const isOver = rectList.some(
+            ({ points }) =>
+              points[2] * rate - clientWidth > 5 ||
+              points[4] * rate - clientWidth > 5 ||
+              points[5] * rate - clientHeight > 5 ||
+              points[7] * rate - clientHeight > 5,
+          );
+          setIsOverRange(isOver);
+        }
       }
     } catch (error) {
       console.log('判断isOver', error);
     }
-  }, [rectList, rate, wrapperSize, svgAttr]);
+  }, [rectList, rate, wrapperSize, svgAttr?.viewBox]);
 
   const autoLinkHandle = (id: string, cellId: string) => {
     if (!svgRef.current) return;
@@ -142,6 +147,8 @@ export default ({
 
   const handleClick = useCallback(
     (id: string, cell: any) => {
+      const rectItem = rectList.find((item) => item.uid === id);
+      if (rectItem && rectItem.active === 0) return;
       if (autoLink) {
         autoLinkHandle(id, cell);
       } else {
@@ -149,7 +156,7 @@ export default ({
         onClick(id);
       }
     },
-    [autoLink],
+    [autoLink, rectList],
   );
 
   return (
@@ -175,6 +182,7 @@ export default ({
             )
           }
           viewBox={viewBox}
+          viewAngle={viewAngle}
         />
       ))}
     </svg>
@@ -189,52 +197,46 @@ interface IRectProps extends IRectListItem {
   viewBox?: IViewBox;
 }
 
-const Rect = memo(
-  ({
-    points,
-    rate,
-    activeId,
-    uid,
-    onClick,
-    renderText,
-    type = 'paragraph',
-    cells,
-    viewBox,
-  }: IRectProps) => {
-    if (!rate || !(Array.isArray(points) && points.length)) return null;
+const Rect = memo((rect: IRectProps) => {
+  const { points, rate, activeId, uid, onClick, renderText, cells, viewBox } = rect;
+  if (!rate || !(Array.isArray(points) && points.length)) return null;
 
-    const list = points.map((val) => Math.round(val * rate));
-    const finalPoints = `${list[0]} ${list[1]},${list[2]} ${list[3]},${list[4]} ${list[5]},${list[6]} ${list[7]}`;
-    const cls = classNames({
-      active: activeId === uid,
-      [type]: type,
-    });
+  const list = points.map((val) => Math.round(val * rate));
+  const finalPoints = `${list[0]} ${list[1]},${list[2]} ${list[3]},${list[4]} ${list[5]},${list[6]} ${list[7]}`;
+  const rect_type = rect.rect_type || rect.type || '';
+  const cls = classNames({
+    active: activeId === uid,
+    [rect_type]: rect_type,
+  });
 
-    if (cells) {
-      return (
+  if (cells) {
+    return (
+      <>
         <Cell
           cells={cells}
           rate={rate}
-          type={type}
+          type={rect_type}
           points={list}
           uid={uid}
           onClick={(cell) => onClick(uid, cell)}
           viewBox={viewBox}
         />
-      );
-    }
-
-    return (
-      <>
-        <polygon
-          data-content-id={uid}
-          vectorEffect="non-scaling-stroke"
-          points={finalPoints}
-          className={cls}
-          onClick={() => onClick(uid)}
-        />
-        {renderText(list)}
+        <SectionTableLine {...rect} />
       </>
     );
-  },
-);
+  }
+
+  return (
+    <>
+      <polygon
+        data-content-id={uid}
+        vectorEffect="non-scaling-stroke"
+        points={finalPoints}
+        className={cls}
+        onClick={() => onClick(uid)}
+      />
+      {renderText(list)}
+      <SectionLine {...rect} />
+    </>
+  );
+});

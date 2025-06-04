@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { message } from 'antd';
 import { createContainer } from 'unstated-next';
 import type { IFileItem } from '../data.d';
+import { listContainer } from './useList';
 import { requestWidthCache } from '@/utils';
 import { useDispatch, useSelector } from 'umi';
 import type { ConnectState } from '@/models/connect';
@@ -23,6 +24,7 @@ function useFile(initialState: IProps = {}) {
   const [curFileActiveId, setCurFileActiveId] = useState<number | string>(-Infinity);
   // 选中的文件id列表
   const [selectFiles, setSelectFiles] = useState<IFileItem[]>([]);
+  const [indeterminate, setIndeterminate] = useState(false);
   // 全选控制
   const [isSelectAll, setIsSelectAll] = useState(false);
   // 是否多选
@@ -35,6 +37,8 @@ function useFile(initialState: IProps = {}) {
   const curFileRef = useRef<Record<string, any>>({});
   const recoiningFile = useRef<IFileItem | null>(null);
   const fileBeforeUpload = useRef();
+
+  const { list, setList } = listContainer.useContainer();
 
   useEffect(() => {
     if (currentFile && currentFile.status && ['complete', 'wait'].includes(currentFile.status)) {
@@ -53,6 +57,18 @@ function useFile(initialState: IProps = {}) {
       });
     }
   }, [currentFile?.status]);
+
+  useEffect(() => {
+    if (isSelectAll) {
+      handleFileSelectChange(list);
+    } else {
+      handleFileSelectChange([]);
+    }
+  }, [isSelectAll]);
+
+  useEffect(() => {
+    setIndeterminate(!!selectFiles.length && list.length !== selectFiles.length);
+  }, [list, selectFiles]);
 
   const handleCheckFileClick = async (file: IFileItem, afterUpload?: boolean) => {
     if (file.status === 'recognize' || file.status === 'queue')
@@ -132,6 +148,11 @@ function useFile(initialState: IProps = {}) {
 
   const handleFileSelectChange = (rows: IFileItem[]) => {
     setSelectFiles(rows);
+    if (!rows.length) {
+      handleCheckChange(false);
+    } else if (rows.length === list.length) {
+      handleCheckChange(true);
+    }
     if (getChooseList) {
       getChooseList(rows);
     }
@@ -141,6 +162,7 @@ function useFile(initialState: IProps = {}) {
     setRowSelected((rowSelected) => !rowSelected);
     if (rowSelected) {
       setIsSelectAll(false);
+      handleFileSelectChange([]);
       setIndeterminate(false);
     }
   };
@@ -148,7 +170,18 @@ function useFile(initialState: IProps = {}) {
     setIsSelectAll(checked);
     setKeepLoadingSelectAll(false);
   };
-  const [indeterminate, setIndeterminate] = useState(false);
+
+  const deleteFiles = async (ids: any[]) => {
+    setList((pre) => pre.filter((item) => !ids.includes(item.id)));
+    handleFileSelectChange([]);
+    setIndeterminate(false);
+    setIsSelectAll(false);
+    message.success('删除成功');
+    if (ids.includes(curFileActiveId) && onFileClick) {
+      onFileClick({ name: '', url: '' });
+    }
+  };
+
   return {
     curFileActiveId,
     curFileRef,
@@ -165,6 +198,7 @@ function useFile(initialState: IProps = {}) {
     indeterminate,
     setIndeterminate,
     fileBeforeUpload,
+    deleteFiles,
   };
 }
 

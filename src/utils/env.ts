@@ -16,3 +16,5 @@ export enum env {
 }
 
 export const prefixPath = (globalThis?.location?.origin || '') + '/';
+
+export const isBrowser = typeof window !== 'undefined';

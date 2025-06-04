@@ -1,12 +1,13 @@
 import React from 'react';
 import classNames from 'classnames';
+import type { VirtuosoHandle } from 'react-virtuoso';
 // import BatchUpload from '@/components/Upload/Index';
 import type { ImageProps } from './Image';
 import Image from './Image';
 // import uploadHintImg from '@/assets/images/pic_upload_img@2x.png';
 // import Empty from '@/components/Empty/Index';
 import DraggerUpload from '@/components/DragUpload';
-import { isNil } from '@/utils';
+import { getFileNameAndType, isNil } from '@/utils';
 import type { Dispatch } from 'umi';
 import { connect, useSelector } from 'umi';
 import type { ConnectState } from '@/models/connect';
@@ -35,6 +36,9 @@ export interface MainViewProps extends Omit<ImageProps, 'src'> {
   Robot: ConnectState['Robot'];
   dispatch: Dispatch;
   maxUploadNum?: number;
+  viewerVirtuosoRef?: React.RefObject<VirtuosoHandle>;
+  resultVirtuosoRef?: React.RefObject<VirtuosoHandle>;
+  getResultItemIndex?: (pageNumber: number) => number;
 }
 
 export const fallback =
@@ -65,10 +69,16 @@ export const MainView: React.FC<MainViewProps> = ({
   Common,
   Robot,
   maxUploadNum,
+  fileNameStyle,
   ...props
 }) => {
   const { resultLoading, loading } = Common;
   const { acceptInfo } = Robot;
+
+  const hideScanning =
+    currentFile &&
+    !currentFile.rects &&
+    getFileNameAndType(currentFile.name || '').type.includes('xls');
 
   const beforeUploadHandle = (fileList: any[]) => {
     const result = beforeUpload(fileList, acceptInfo);
@@ -77,9 +87,14 @@ export const MainView: React.FC<MainViewProps> = ({
   };
 
   return (
-    <div className={styles.fileView} style={wrapperStyle}>
+    <div id="robotMainViewContainer" className={styles.fileView} style={wrapperStyle}>
       {currentFile.name && (
-        <div className={styles.fileName} title={currentFile.originName || currentFile.name}>
+        <div
+          className={styles.fileName}
+          style={fileNameStyle}
+          title={currentFile.originName || currentFile.name}
+          id="robotMainViewFilename"
+        >
           {currentFile.originName || currentFile.name}
         </div>
       )}
@@ -89,7 +104,7 @@ export const MainView: React.FC<MainViewProps> = ({
           <Spin />
         </div>
       )}
-      <Scanning visible={!loading && resultLoading} />
+      {!hideScanning && <Scanning visible={!loading && resultLoading} />}
 
       {!currentFile.url && isNil(currentFile.id) ? (
         <EmptyView onUpload={beforeUploadHandle} maxUploadNum={maxUploadNum} />

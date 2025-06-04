@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <defs>
+        <rect id="path-1" x="0" y="0" width="16" height="16"></rect>
+    </defs>
+    <g id="文档解析全局优化" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="导航交互-展开-文件列表详情" transform="translate(-266, -420)">
+            <g id="编组-3" transform="translate(100, 204)">
+                <g id="编组-25" transform="translate(0, 66)">
+                    <g id="编组-5" transform="translate(0, 28)">
+                        <g id="编组-7" transform="translate(8, 110)">
+                            <g id="2-Edit/PlusOutlined" transform="translate(158, 12)">
+                                <mask id="mask-2" fill="white">
+                                    <use xlink:href="#path-1"></use>
+                                </mask>
+                                <g id="矩形"></g>
+                                <g id="编组" mask="url(#mask-2)" fill="#000000" fill-rule="nonzero">
+                                    <g transform="translate(1.3333, 1.3333)" id="形状">
+                                        <path d="M10.6873333,9.74453333 L13.5424667,12.5996667 L12.5996667,13.5424667 L9.74453333,10.6873333 C8.71793333,11.5086667 7.416,12 6,12 C2.688,12 0,9.312 0,6 C0,2.688 2.688,0 6,0 C9.312,0 12,2.688 12,6 C12,7.416 11.5086667,8.71793333 10.6873333,9.74453333 Z M9.3498,9.24986667 C10.165,8.40973333 10.6666667,7.26373333 10.6666667,6 C10.6666667,3.42166667 8.57833333,1.33333333 6,1.33333333 C3.42166667,1.33333333 1.33333333,3.42166667 1.33333333,6 C1.33333333,8.57833333 3.42166667,10.6666667 6,10.6666667 C7.26373333,10.6666667 8.40973333,10.165 9.24986667,9.3498 L9.3498,9.24986667 Z"></path>
+                                    </g>
+                                </g>
+                            </g>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

@@ -1,0 +1,315 @@
+.left-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  background-image: linear-gradient(90deg, #edf4ff, #e0e7fa);
+
+  &.collapsed-slide {
+    .collapse-btn svg {
+      transform: rotateY(180deg);
+    }
+
+    .robot-name,
+    .progress-info {
+      display: none;
+    }
+
+    .operation-btn {
+      flex-wrap: wrap;
+      padding: 0 8px;
+
+      .btn-item {
+        &:not(:last-child) {
+          margin: 0 0 8px 0;
+        }
+
+        button {
+          padding: 4px 4px;
+        }
+      }
+    }
+
+    .user-container {
+      .user-progress {
+        justify-content: center;
+        .avatar-icon {
+          margin-right: 0;
+        }
+      }
+
+      .package-btn {
+        background-size: auto 100%;
+
+        .package-btn-bg {
+          position: fixed;
+          bottom: 20px;
+          left: 20px;
+          display: none;
+          width: 0;
+          height: 40px;
+          background-size: auto 100%;
+          transition: width 0.1s;
+          content: '';
+        }
+
+        &:hover {
+          opacity: 1;
+
+          .package-btn-bg {
+            display: flex;
+            width: 200px;
+          }
+        }
+
+        & > span {
+          display: none;
+        }
+      }
+    }
+  }
+
+  .collapse-btn {
+    position: absolute;
+    top: 3px;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    height: 38px;
+    cursor: pointer;
+
+    &::after {
+      position: absolute;
+      background-color: rgba(11, 45, 115, 0.1);
+      border-radius: 2px 0px 0px 2px;
+      transform: perspective(0.5em) rotateY(-10deg);
+      transition: 0.3s;
+      content: '';
+      inset: 0px;
+    }
+
+    &:hover::after {
+      background-color: rgba(11, 45, 115, 0.15);
+    }
+  }
+
+  .logo-header {
+    display: flex;
+    align-items: center;
+    padding: 20px 20px 22px;
+    color: #000;
+    font-weight: bold;
+    font-size: 20px;
+
+    img {
+      margin-right: 16px;
+      cursor: pointer;
+    }
+  }
+
+  .operation-btn {
+    display: flex;
+    margin-bottom: 8px;
+    padding: 0 20px;
+
+    .btn-item {
+      flex: 1 1 50%;
+
+      &:not(:last-child) {
+        margin: 0 8px 0 0;
+      }
+    }
+
+    :global {
+      .ant-btn {
+        position: relative;
+        width: 100%;
+        color: @text-color;
+        font-size: 12px;
+        border: 0;
+        box-shadow: 0px 1px 4px 0px rgba(3, 10, 26, 0.1) !important;
+
+        &:hover,
+        &[class*='settingsBtnActive'] {
+          color: @primary-color;
+          background-color: #cadafc;
+        }
+      }
+      .btn-tag {
+        position: absolute;
+        top: -8px;
+        left: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        height: 14px;
+        padding: 0 6px;
+        color: #fff;
+        line-height: 14px;
+        background: linear-gradient(270deg, #a9a1ff 0%, #d94141 100%),
+          linear-gradient(270deg, #928ae6 0%, #d94141 100%);
+        border-radius: 8px 8px 8px 0px;
+
+        .btn-tag-text {
+          display: inline-block;
+          font-size: 12px;
+          zoom: 8 / 12;
+        }
+      }
+    }
+  }
+
+  .btn-row {
+    .operation-btn;
+    padding: 0 20px;
+    button {
+      width: 100% !important;
+      height: 32px !important;
+    }
+    :global {
+      .ant-tooltip-disabled-compatible-wrapper {
+        width: 100%;
+      }
+    }
+  }
+  .btn-row-collpased {
+    padding: 0 8px;
+    button {
+      padding: 4px;
+    }
+  }
+
+  .files-container {
+    flex: 1 1 auto;
+    overflow: hidden;
+  }
+
+  .user-container {
+    padding: 20px;
+    background-image: linear-gradient(180deg, #d9e5ff, #ffffff);
+
+    .user-progress {
+      display: flex;
+
+      .avatar-icon {
+        flex: 0 0 30px;
+        height: 30px;
+        margin-right: 8px;
+        cursor: pointer;
+      }
+
+      .progress-info {
+        flex: 1 1 auto;
+      }
+    }
+
+    .package-btn {
+      height: 40px;
+      margin-top: 16px;
+      line-height: 40px;
+      white-space: nowrap;
+      background-repeat: no-repeat;
+      background-size: 100%;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: opacity 0.3s;
+
+      &:hover {
+        opacity: 0.8;
+      }
+
+      .package-btn-bg {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+        background-repeat: no-repeat;
+        background-size: 100%;
+      }
+
+      .package-btn-text {
+        color: transparent;
+        font-weight: 600;
+        font-size: 18px;
+        line-height: 20px;
+        background: linear-gradient(180deg, #902b2b 0%, #000000 100%);
+        background-clip: text;
+      }
+
+      .package-btn-price {
+        padding: 0 4px;
+        color: transparent;
+        font-weight: bold;
+        font-size: 22px;
+        font-family: MiSans, MiSans;
+        line-height: 20px;
+        background: linear-gradient(180deg, #ff8080 0%, #d94141 100%);
+        background-clip: text;
+      }
+    }
+  }
+}
+
+.count-progress {
+  cursor: pointer;
+  .count-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    line-height: 20px;
+    white-space: nowrap;
+
+    .count-total {
+      color: #757a85;
+    }
+
+    .count-number {
+      font-size: 12px;
+    }
+  }
+
+  :global {
+    .ant-progress,
+    .ant-progress-outer {
+      display: flex;
+      height: 2px;
+      line-height: 2px;
+    }
+
+    .ant-progress-inner {
+      background-color: #fff;
+    }
+  }
+}
+
+.user-popover {
+  :global {
+    .ant-popover-inner-content {
+      padding: 12px;
+
+      .user-info-popver {
+        margin-top: 12px;
+      }
+
+      .user-info-finance {
+        border-radius: 4px;
+      }
+    }
+  }
+
+  .user-popover-content {
+    width: 240px;
+    .user-name {
+      margin-bottom: 20px;
+      padding-top: 8px;
+      font-weight: bold;
+      font-size: 16px;
+      line-height: 22px;
+    }
+  }
+}

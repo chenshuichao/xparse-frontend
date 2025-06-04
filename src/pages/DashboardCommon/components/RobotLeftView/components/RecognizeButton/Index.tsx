@@ -57,7 +57,7 @@ const RecognizeButton = ({ currentFile }: IRcognizeButtonProp) => {
   return (
     <div className={styles.recognizeButtonWrapper}>
       <Button
-        className={classNames(styles.ocrButton, {
+        className={classNames('ocr-btn', styles.ocrButton, {
           [styles.ocrButtonDisable]: disabled,
         })}
         onClick={() => {

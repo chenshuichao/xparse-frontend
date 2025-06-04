@@ -1,3 +1,4 @@
+import lodash from 'lodash';
 import { textinDomain } from '@/utils/helper';
 
 export const SettingsSaveKey = 'recognition-params-settings';
@@ -39,6 +40,9 @@ const mdDefaultParams: Record<string, any> = {
   page_details: 1,
   catalog_details: 1,
   get_excel: 1,
+  paratext_mode: 'annotation',
+  formula_level: 1,
+  apply_merge: 1,
 };
 
 const mdParamsZH: Record<string, any> = {
@@ -59,6 +63,10 @@ const mdParamsZH: Record<string, any> = {
   raw_ocr: '全文识别结果',
   remove_watermark: '去水印',
   crop_enhance: '切边增强',
+  crop_dewarp: '切边矫正',
+  paratext_mode: '非正文展示模式',
+  formula_level: '公式识别等级',
+  apply_merge: '合并段落和表格',
 };
 
 const mdRewriteParamsType: Record<string, any> = {
@@ -125,7 +133,7 @@ export const getDefaultParams = (robotInfo: any) => {
 };
 
 export const rewriteParams = (url_params: any[], { robotInfo }: { robotInfo: any }) => {
-  let params = [...url_params];
+  let params = lodash.cloneDeep(url_params.filter(({ key }) => /^[a-z0-9_-]+$/i.test(key)));
   if (robotInfo.interaction === 16) {
     for (let index = 0; index < params.length; index++) {
       const row = params[index];

@@ -5,23 +5,29 @@ import rehypeStringify from 'rehype-stringify';
 import remarkMath from 'remark-math';
 import rehypeRaw from 'rehype-raw';
 import remarkCustomGfm from './remarkCustomGfm/index';
+import formatMath from '../MathJaxRender/formatMath';
 
-const md2html = (content: string) => {
+const md2html = (content: string, { keepRawHtml = false } = {}) => {
   const res = unified()
     .use(remarkParse) // 解析 Markdown
+    .use(remarkMath)
     .use(remarkCustomGfm, { singleTilde: false })
-    .use(remarkRehype, { allowDangerousHtml: true }) // 转换为 HTML 树
+    .use(remarkRehype, { escapeXmlAttribute: false, escapeAll: false, allowDangerousHtml: true }) // 转换为 HTML 树
+    .use(keepRawHtml ? rehypeRaw : () => {}) // 解析 HTML
+    .use(formatMath)
     .use(rehypeStringify) // 转换为 HTML 字符串
     .processSync(content);
-  return res.toString();
+  return res.toString()?.trim();
 };
 
 export const mdRender = (content: string) => {
   const res = unified()
     .use(remarkParse) // 解析 Markdown
+    .use(remarkMath)
     .use(remarkCustomGfm, { singleTilde: false })
     .use(remarkRehype, { allowDangerousHtml: true }) // 转换为 HTML 树
-    .use(rehypeRaw)
+    .use(rehypeRaw) // 解析 HTML
+    .use(formatMath)
     .use(rehypeStringify) // 转换为 HTML 字符串
     .processSync(content);
   return res.toString();
@@ -53,3 +59,20 @@ const filterMath = (data: any): string[] => {
 };
 
 export default md2html;
+
+export function encodeMath(content: string) {
+  try {
+    const mathExpressionPattern = /\$([^$]+)\$/g;
+
+    return content.replace(mathExpressionPattern, (match, p1) => {
+      const isMathExpression = /[+\-*/^=<>\\]/.test(p1);
+      if (isMathExpression) {
+        const encodedMath = p1.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        return `$${encodedMath}$`;
+      }
+      return match;
+    });
+  } catch (error) {
+    return content;
+  }
+}

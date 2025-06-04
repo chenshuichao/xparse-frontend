@@ -131,7 +131,7 @@ const SPLIT_COMM = '__**TEXTIN**__';
 
 export const getFileNameAndType = (name: string) => {
   const [fileName, type] = name.replace(/(.)\.(\w+)$/, `$1${SPLIT_COMM}$2`).split(SPLIT_COMM);
-  return { fileName, type: type?.toLowerCase() };
+  return { fileName, type: type?.toLowerCase() || '' };
 };
 export const getDownloadName = (originFileName: string, type?: string) => {
   const { fileName, type: originType } = getFileNameAndType(originFileName);
@@ -185,3 +185,13 @@ export function checkType(file: any, accept = '') {
     .filter((type) => type)
     .some((acceptMIME) => type === acceptMIME || acceptMIME === extension);
 }
+
+export const isXLSX = (fileName: string) => {
+  const { type } = getFileNameAndType(fileName);
+  return type === 'xlsx';
+};
+
+export const isXLS = (fileName: string) => {
+  const { type } = getFileNameAndType(fileName);
+  return type === 'xls';
+};

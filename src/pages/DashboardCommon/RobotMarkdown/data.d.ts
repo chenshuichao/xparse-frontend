@@ -6,6 +6,7 @@ export interface IFileItem extends IFile {
   time?: string;
   id: number;
   result?: any;
+  utime?: string;
   [key: string]: any;
 }
 
@@ -50,10 +51,6 @@ export enum KeyTypeEnum {
   ITEM_LIST = 'item_list',
   DETAILS = 'details',
 }
-export enum ResultType {
-  json = 'json',
-  text = 'text',
-}
 
 export interface IRectListItem {
   uid: string;
@@ -61,3 +58,37 @@ export interface IRectListItem {
   value?: string;
   [index: string]: any;
 }
+
+export const QuestionTypeDesc: Record<string, any> = {
+  0: '选择题',
+  1: '填空题',
+  2: '阅读理解（阅读+问答选择）',
+  3: '完型填空（阅读+选择）',
+  4: '阅读填空（阅读+填空）',
+  5: '问答题',
+  6: '选择题，多选多',
+  7: '填空、选择题混合',
+  8: '应用题',
+  9: '判断题',
+  10: '作图题',
+  11: '材料题',
+  12: '计算题',
+  13: '连线题',
+  14: '作文题',
+  15: '解答题',
+  16: '其他',
+  17: '图',
+  18: '表格',
+};
+
+export const QuestionCategoryDesc: Record<string, any> = {
+  0: '题干',
+  1: '选项',
+  2: '解析',
+  3: '答案',
+  stem: '题干',
+  option: '选项',
+  analysis: '解析',
+  answer: '答案',
+  other: '其他',
+};

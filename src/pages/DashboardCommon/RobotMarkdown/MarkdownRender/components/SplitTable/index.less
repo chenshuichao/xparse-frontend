@@ -1,0 +1,17 @@
+.table-content {
+  margin-bottom: 12px;
+  overflow: auto;
+
+  table {
+    min-width: 100%;
+
+    th,
+    td {
+      min-width: calc(4em + 18px);
+
+      &:empty {
+        height: 38px;
+      }
+    }
+  }
+}
