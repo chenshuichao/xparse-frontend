@@ -24,6 +24,8 @@ import { QuestionCategoryDesc, QuestionTypeDesc } from '../data.d';
 import { isEmpty, isNil } from '@/utils/objectUtils';
 import { markdownResultScrollContainerId, useSyncScrollV2 } from '../hooks/useSyncScrollV2';
 
+const virtual_enabled = true; // 是否开启Markdown结果虚拟渲染，推荐开启
+
 const MultiPageMarkdown = ({
   data,
   onRectClick,
@@ -191,7 +193,7 @@ const MultiPageMarkdown = ({
         ref={resultVirtuosoRef}
         style={{ height: '100%', willChange: 'transform', transform: 'translateZ(0)' }}
         data={displayData}
-        increaseViewportBy={500}
+        increaseViewportBy={virtual_enabled ? 500 : Infinity}
         itemsRendered={() => {
           refreshMath();
         }}
