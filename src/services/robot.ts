@@ -263,10 +263,7 @@ export async function robotRecognize({
   const filename = param.img_name || param.file_name || '';
   if (isMarkdown) {
     // 水印和切边，需要预览处理后的图片
-    const needOcrPreview = param.remove_watermark || param.crop_enhance;
-    if (needOcrPreview && imagePreview(filename)) {
-      param.image_output_type = 'base64str';
-    }
+    const needOcrPreview = param.remove_watermark || param.crop_enhance || param.crop_dewarp;
     // 前端无法预览的类型，需要引擎转的图片
     const cannotPreview = (!exampleFlag || param.file_name) && mdNoPreview(filename);
     if (needOcrPreview || cannotPreview) {
