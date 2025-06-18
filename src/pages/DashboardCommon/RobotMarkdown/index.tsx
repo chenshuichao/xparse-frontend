@@ -203,9 +203,9 @@ const MarkdownPage: FC<PageProps> = (props) => {
       const noPreviewType = /\.[a-z]+$/i.test(filename) && mdNoPreview(filename);
       const isImage = current.isExample ? !current.isPDF : imagePreview(filename);
       // 是否开启了切边或者去水印参数
-      const isCropRemove = resultData.pages
-        ?.slice(0, 10)
-        .find((item) => item.image_id)?.origin_image_id;
+      const isCropRemove =
+        resultData.pages?.slice(0, 10).find((item) => item.image_id)?.origin_image_id ||
+        resultData.pages?.slice(0, 10).find((item) => item.base64)?.origin_base64;
       const previewByRes =
         isCropRemove &&
         resultData.pages?.[0] &&
